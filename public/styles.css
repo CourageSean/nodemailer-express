@@ -1,3 +1,26 @@
 body{
     padding-top: 50px;
 }
+
+.error-txt{
+    display: inline-block;
+    width: 60%;
+    margin-top: 0 ;
+    margin-bottom: 0 ; 
+    margin-left:30%;
+    color: crimson;
+    font-weight: 500;
+}
+.register-txt{
+    display: inline-block;
+    width: 60%;
+    margin-top: 0 ;
+    margin-bottom: 0 ; 
+    margin-left:30%;
+    color: #0099CC;
+    font-weight: 500;
+}
+
+.resend-email{
+    display: inline-block;
+}

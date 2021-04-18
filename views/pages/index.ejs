@@ -11,6 +11,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
+    <% const msg=getMessages() %>
     <section>
   
    
@@ -44,7 +45,12 @@
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
-                        <div class="card-header">Nodemailer</div>
+                        <div class="card-header">Nodemailer
+                            <% if (msg .register) { %>
+                                <p class="register-txt">no such user found, please register</p>
+                               <% }%>
+
+                        </div>
                         <div class="card-body">
                             <form action="/send" method="POST">
                                 <div class="form-group row">

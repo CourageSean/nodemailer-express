@@ -13,8 +13,11 @@
 </head>
 <body>
    
-   
+    <% const msg=getMessages() %>
 
+
+   
+ 
 
 
 
@@ -44,9 +47,18 @@
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
-                        <div class="card-header">Login</div>
+                        <div class="card-header">Login  
+       
+                            <% if (msg .error) { %>
+                             <p class="error-txt">incorrect password or email</p>
+                            <% } else if(msg .errorMail ){ %> 
+                                <p class="error-txt">incorrect password</p>
+                                <% } else if(msg .errorPending ){ %> 
+                                    <p class="error-txt">Please confirm email to complete registration</p>
+                                    <% }     %>
+                        </div>
                         <div class="card-body">
-                            <form action="/send" method="POST">
+                            <form id="prevent-form" action="/secret" method="POST">
                                
                                 <div class="form-group row">
                                     <label for="email" class="col-md-4 col-form-label text-md-right">Username</label>
@@ -68,6 +80,9 @@
                                             <label>
                                                 <input type="checkbox" name="remember"> Remember Me
                                             </label>
+                                            <% if (msg .errorPending) { %>
+                                                <p class="resend-email">Didn't got a confirmation-mail? <a href="/resend"> >>CLICK<< </a>   to resend mail</p>
+                                               <% }%>
                                         </div>
                                     </div>
                                 </div>
@@ -90,7 +105,12 @@
     
     </main>
 
-
+<script>
+// const preventForm = document.getElementById("prevent-form")
+// preventForm.addEventListener("submit",(e) => {
+//   e.preventDefault()
+// })
+</script>
     
 </body>
 </html>

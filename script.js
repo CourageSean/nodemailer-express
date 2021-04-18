@@ -6,7 +6,7 @@ const UsersCheck = require("./data/Users.json")
 const fs = require("fs")
 const bcrypt = require('bcrypt');
 const session =require("express-session")
-const flash = require("connect-flash")
+const flash=require('express-flash-messages') 
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 
@@ -24,12 +24,12 @@ app.use(express.urlencoded({ extended: false }));
 
 
 
-    app.use(express.cookieParser('keyboard cat'));
-     app.use(express.session({ cookie: { maxAge: 60000 },
-    resave:false,
-    saveUninitialized:false
-    }));
-    app.use(flash());
+app.use(flash());
+     app.use(session({ secret:"secret",resave:false,saveUninitialized:true}))
+    // resave:false,
+    // saveUninitialized:false
+    // }));
+    
 
 
 
@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: false }));
 
 
 
-
+// ========== GET ===============
 
 app.get("/", (req,res) => {
   
@@ -46,7 +46,43 @@ app.get("/", (req,res) => {
 
 app.get("/login", (req,res) => {
   
+
+    
     res.render("pages/login")
+})
+
+app.post("/secret",async (req,res) => {
+    if(  UsersCheck.some( elt => elt['email'] === req.body.email && bcrypt.compareSync(req.body.password,elt.password) && elt.status==="active")){
+        console.log("email correct & password correct")
+     res.render("pages/secret")
+    }else if(UsersCheck.some( elt => elt['email'] === req.body.email && bcrypt.compareSync(req.body.password,elt.password) && elt.status==="pending")){
+        
+      
+        req.flash("errorPending","confirm mail")
+        // const resendMail = req.body.email
+        // res.redirect("/login/?email="+req.body.email)
+         res.redirect("/login")
+    }else if(UsersCheck.some( elt => elt['email'] === req.body.email && !bcrypt.compareSync(req.body.password,elt.password))){
+     
+        req.flash("errorMail","not correct")
+        res.redirect("/login",)
+    }else if(UsersCheck.some( elt => elt['email'] !== req.body.email )){
+     
+        req.flash("errorMail","not correct")
+        req.flash("register","not correct")
+        res.redirect("/",)
+    }
+    
+    else{
+        req.flash("error","not correct")
+    res.redirect("/login")
+// return done({message:"password or email incorrect"})
+
+    }
+   
+
+//    req.flash("error","not correct")
+//     res.redirect("/login")
 })
 
 
@@ -67,11 +103,11 @@ app.post('/send', async (req, res) => {
 
 // console.log(userss)
 
-    if(  UsersCheck.some( elt => elt['email'] === req.body.email )){
-        req.flash('info', 'Flash is back!')
+    // if(  UsersCheck.some( elt => elt['email'] === req.body.email )){
+    //     req.flash('info', 'Flash is back!')
       
-        res.redirect("pages/login")
-    }
+    //     res.redirect("pages/login")
+    // }
 
 
     let id = uuidv4()
@@ -140,9 +176,49 @@ app.post('/send', async (req, res) => {
 })
 
 
+//=============== RESEND ====================
+
+app.get("/resend",(req,res) => {
+    console.log(req.body.email,"here")
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: process.env.user,
+            pass: process.env.pass
+        }
+    });
+
+    const onPending = UsersCheck.find((elt) => {
+        return  elt => elt['email'] === req.body.email
+      })
+
+      let info =  transporter.sendMail({
+          from: '"Super Sean 👻" <YourEmail>', // sender address
+          to: req.body.email, // list of receivers
+          subject: "SUPER BOY ✔", // Subject line
+          text: "Hello world?", // plain text body
+          html: `<p>please confirm your registration with this link </p> <br> <a href=${onPending.confirmationCode}>Click here to confirm Email</a>`,
+        }, (err, info) => {
+            if (err) {throw err
+            }else{
+
+
+                // try{
+                //     res.render("pages/registration")
+                // }catch (err){
+                //     console.log("error")
+                // }
+                res.render("pages/registration")    
+            }
+         } )
+         
+         
+        
+})
+
 
  //==========Confirm request =========== //
-app.get("/confirm/:id",(req,res) => {
+app.post("/confirm/:id",(req,res) => {
 
 
 
